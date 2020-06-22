@@ -1,6 +1,6 @@
 /*
  * The Clear BSD License
- * Copyright 2019-2020 NXP
+ * Copyright 2019-2021 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -314,12 +314,14 @@ static status_t imx_pdm_init(struct device *dev)
     hw_config = &state->hw_config;
     hw_config->enableDoze = false;
     hw_config->fifoWatermark = PDM_FIFO_WATERMARK - 1;
-    hw_config->qualityMode = kPDM_QualityModeVeryLow0;
+    if (of_device_get_int32(dev, "quality-mode", &hw_config->qualityMode))
+        hw_config->qualityMode = kPDM_QualityModeVeryLow0;
     hw_config->cicOverSampleRate = PDM_CIC_OVERSAMPLE_RATE;
 
     channel_config = &state->channel_config;
     channel_config->cutOffFreq = kPDM_DcRemoverBypass;
-    channel_config->gain = kPDM_DfOutputGain2;
+    if (of_device_get_int32(dev, "out-gain", &channel_config->gain))
+        channel_config->gain = kPDM_DfOutputGain2;
 
     PDM_Init(state->io_base, hw_config);
     handle->state = kPDM_Up;
@@ -458,7 +460,7 @@ static status_t imx_pdm_rx_start(struct device *dev)
     PDM_RxStart(base, handle->irq_mask);
 
     spin_unlock_irqrestore(&state->rx_lock, lock_state);
-    //PDM_Dump(state->io_base);
+    PDM_Dump(state->io_base);
     return 0;
 }
 
@@ -505,7 +507,7 @@ static status_t imx_pdm_rx_setup(struct device *dev, pdm_hw_params_t *fmt)
     ASSERT(state);
 
     pdm_handle_t *handle = &state->rx_handle;
-    pdm_config_t *hw_config = &state->hw_config;
+    //pdm_config_t *hw_config = &state->hw_config;
 
     ret = imx_pdm_check_state(handle, kPDM_Prepared, "configuring");
     if (ret)
@@ -528,7 +530,12 @@ static status_t imx_pdm_rx_setup(struct device *dev, pdm_hw_params_t *fmt)
         sample_chan_mask |= (1 << i);
 
     }
-    ret = PDM_SetSampleRate(state->io_base, sample_chan_mask, hw_config->qualityMode, hw_config->cicOverSampleRate, (state->clk_rate / PDM_SAMPLE_CLOCK_RATE));
+    //ret = PDM_SetSampleRate(state->io_base, sample_chan_mask, hw_config->qualityMode, hw_config->cicOverSampleRate, (state->clk_rate / PDM_SAMPLE_CLOCK_RATE));
+    ret = PDM_SetSampleRateConfig(state->io_base, state->clk_rate, fmt->sampleRate_Hz);
+    if (ret) {
+        printf("Set sample rate failure\n");
+        goto exit_rx_setup;
+    }
     imx_pdm_set_hw_state(handle, kPDM_Ready);
 
 exit_rx_setup:

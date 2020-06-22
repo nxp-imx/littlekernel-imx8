@@ -1,7 +1,7 @@
 /*
  * The Clear BSD License
  * Copyright (c) 2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2017 NXP
+ * Copyright 2016-2021 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -164,6 +164,77 @@ static status_t PDM_ValidateSrcClockRate(uint32_t channelMask,
     {
         return kStatus_Fail;
     }
+
+    return kStatus_Success;
+}
+
+/*!
+ * brief PDM set sample rate.
+ *
+ * note This function is depend on the configuration of the PDM and PDM channel, so the correct call sequence is
+ * code
+ * PDM_Init(base, pdmConfig)
+ * PDM_SetChannelConfig(base, channel, &channelConfig)
+ * PDM_SetSampleRateConfig(base, source, sampleRate)
+ * endcode
+ * param base PDM base pointer
+ * param sourceClock_HZ PDM source clock frequency.
+ * param sampleRate_HZ PDM sample rate.
+ */
+status_t PDM_SetSampleRateConfig(PDM_Type *base, uint32_t sourceClock_HZ, uint32_t sampleRate_HZ)
+{
+    uint32_t osr = (base->CTRL_2 & PDM_CTRL_2_CICOSR_MASK) >> PDM_CTRL_2_CICOSR_SHIFT;
+    pdm_df_quality_mode_t qualityMode =
+        (pdm_df_quality_mode_t)(uint32_t)((base->CTRL_2 & PDM_CTRL_2_QSEL_MASK) >> PDM_CTRL_2_QSEL_SHIFT);
+
+    uint32_t pdmClockRate       = 0U;
+//    uint32_t enabledChannelMask = base->CTRL_1 & (uint32_t)kPDM_EnableChannelAll;
+    uint32_t regDiv = 0U;
+
+    switch (qualityMode)
+    {
+        case kPDM_QualityModeHigh:
+            osr          = 16U - osr;
+            pdmClockRate = sampleRate_HZ * osr * 8U;
+            break;
+
+        case kPDM_QualityModeMedium:
+            osr          = 16U - osr;
+            pdmClockRate = sampleRate_HZ * osr * 4U;
+            break;
+
+        case kPDM_QualityModeLow:
+            osr          = 16U - osr;
+            pdmClockRate = sampleRate_HZ * osr * 2U;
+            break;
+
+        case kPDM_QualityModeVeryLow0:
+            osr          = 16U - osr;
+            pdmClockRate = sampleRate_HZ * osr * 4U;
+            break;
+
+        case kPDM_QualityModeVeryLow1:
+            osr          = 16U - osr;
+            pdmClockRate = sampleRate_HZ * osr * 2U;
+            break;
+        case kPDM_QualityModeVeryLow2:
+            osr          = 16U - osr;
+            pdmClockRate = sampleRate_HZ * osr;
+            break;
+        default:
+            assert(false);
+            break;
+    }
+
+    /* get divider */
+    regDiv = sourceClock_HZ / pdmClockRate / 2;
+
+    if (regDiv > PDM_CTRL_2_CLKDIV_MASK)
+    {
+        return kStatus_Fail;
+    }
+
+    base->CTRL_2 = (base->CTRL_2 & (~PDM_CTRL_2_CLKDIV_MASK)) | PDM_CTRL_2_CLKDIV(regDiv);
 
     return kStatus_Success;
 }

@@ -906,6 +906,21 @@ static inline void PDM_EnableChannel(PDM_Type *base, uint8_t channel, bool enabl
 void PDM_SetChannelConfig(PDM_Type *base, uint32_t channel, const pdm_channel_config_t *config);
 
 /*!
+ * brief PDM set sample rate.
+ *
+ * note This function is depend on the configuration of the PDM and PDM channel, so the correct call sequence is
+ * code
+ * PDM_Init(base, pdmConfig)
+ * PDM_SetChannelConfig(base, channel, &channelConfig)
+ * PDM_SetSampleRateConfig(base, source, sampleRate)
+ * endcode
+ * param base PDM base pointer
+ * param sourceClock_HZ PDM source clock frequency.
+ * param sampleRate_HZ PDM sample rate.
+ */
+status_t PDM_SetSampleRateConfig(PDM_Type *base, uint32_t sourceClock_HZ, uint32_t sampleRate_HZ);
+
+/*!
  * @brief PDM set sample rate.
  *
  * @param base PDM base pointer
