@@ -1,0 +1,25 @@
+#! /bin/bash
+
+ROOT_CELL=%TEMPLATE_ROOT_CELL%
+LK_CELL=%TEMPLATE_LK_CELL%
+DTB_BASENAME=%TEMPLATE_DTB_BASENAME%
+
+DTB=/home/root/${DTB_BASENAME}
+LK_BIN=/home/root/lk.bin
+LK_ENTRY_ADDRESS=0x80010000
+LK_START_ADDRESS=0x80000000
+
+echo 'modprobe jailhouse'
+modprobe jailhouse
+
+echo 'Enabling jailhouse root cell'
+jailhouse enable /usr/share/jailhouse/cells/${ROOT_CELL}
+
+echo 'Creating jailhouse lk cell'
+jailhouse cell create /usr/share/jailhouse/cells/${LK_CELL}
+
+echo 'Loading jailhouse lk cell'
+jailhouse cell load lk ${DTB} -a ${LK_START_ADDRESS} ${LK_BIN} -a ${LK_ENTRY_ADDRESS}
+
+echo 'Starting lk cell'
+jailhouse cell start lk
