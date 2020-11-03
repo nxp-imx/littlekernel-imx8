@@ -76,6 +76,14 @@ MODULE_DEPS += \
 MODULE_DEPS += \
 	$(LOCAL_DIR)/drivers/clock
 
+ifeq ($(IMX_ENABLE_ASRC_HW), y)
+IMX_USE_ASRC_HW := 1
+MODULE_DEPS += \
+	$(LOCAL_DIR)/drivers/asrc
+else
+IMX_USE_ASRC_HW := 0
+endif
+
 -include $(LOCAL_DIR)/soc/$(PLATFORM_SOC)/rules.mk
 
 MEMBASE ?= 0xC0000000
