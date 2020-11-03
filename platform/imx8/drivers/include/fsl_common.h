@@ -1,7 +1,7 @@
 /*
  * The Clear BSD License
  * Copyright (c) 2015-2016, Freescale Semiconductor, Inc.
- * Copyright 2016-2017 NXP
+ * Copyright 2016-2017,2020 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -124,8 +124,9 @@ enum _status_groups
     kStatusGroup_LPC_MINISPI = 76,            /*!< Group number for LPC_MINISPI status codes. */
     kStatusGroup_NOTIFIER = 98,               /*!< Group number for NOTIFIER status codes. */
     kStatusGroup_DebugConsole = 99,           /*!< Group number for debug console status codes. */
-    kStatusGroup_SEMC = 100,                   /*!< Group number for SEMC status codes. */
+    kStatusGroup_SEMC = 100,                  /*!< Group number for SEMC status codes. */
     kStatusGroup_ApplicationRangeStart = 101, /*!< Starting number for application groups. */
+    kStatusGroup_ASRC = 149,                  /*!< Group number for codec status ASRC. */
 };
 
 /*! @brief Generic status return codes. */
