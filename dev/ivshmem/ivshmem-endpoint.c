@@ -27,6 +27,7 @@
 #include <dev/interrupt.h>
 #include <dev/ivshm.h>
 #include <lib/cbuf.h>
+#include "lib/appargs.h"
 #include <iovec.h>
 #include <err.h>
 #include <malloc.h>
@@ -425,6 +426,26 @@ static int ivshm_endpoint_thread(void *arg)
     return 0;
 }
 
+#ifdef LK
+static unsigned ivshm_ep_thread_stack_size(struct ivshm_endpoint *ep)
+{
+    unsigned size = DEFAULT_STACK_SIZE;
+    char prop[64];
+    int node, ret;
+
+    node = of_get_node_by_path("/ivshmem");
+    if (node <= 0)
+        return size;
+
+    snprintf(prop, sizeof(prop), "%s-stack-kb", ep->name);
+    ret = of_get_int_array(node, prop, &size, 1);
+    if (ret >= 0)
+        size *= 1024;
+
+    return size;
+}
+#endif
+
 struct ivshm_endpoint *ivshm_endpoint_create_w_private(
     const char *name,
     unsigned id,
@@ -437,6 +458,8 @@ struct ivshm_endpoint *ivshm_endpoint_create_w_private(
     struct ivshm_endpoint *ep;
 #ifndef LK
     struct sched_param param;
+#else
+    unsigned stack_size;
 #endif
     int i;
 
@@ -493,13 +516,14 @@ struct ivshm_endpoint *ivshm_endpoint_create_w_private(
     smp_wmb();
 
 #ifdef LK
+    stack_size = ivshm_ep_thread_stack_size(ep);
     ep->thread_running = true;
     ep->thread = thread_create(
                      ep->name,
                      ivshm_endpoint_thread,
                      (void *) ep,
                      IVSHM_EP_GET_PRIO(ep->id),
-                     DEFAULT_STACK_SIZE
+                     stack_size
                  );
 
     thread_resume(ep->thread);
