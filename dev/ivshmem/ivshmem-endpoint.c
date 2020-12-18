@@ -137,8 +137,21 @@ int ivshm_endpoint_push(struct ivshm_info *in, void *buf, size_t len)
     struct ivshm_endpoint *ep;
     size_t count, remaining;
 
+#ifdef ENABLE_PERMISSIVE_MODE
+    if (pkt_hdr->magic != IVSHM_PKT_MAGIC || pkt_hdr->len != len) {
+        TRACEF("WARNING PERMISSIVE: corrupted shared memory !!!!\n");
+#ifdef LK
+        hexdump(pkt_hdr, 128);
+#else
+        print_hex_dump(KERN_INFO, "pkt_hdr:", DUMP_PREFIX_NONE,
+                       16, 2, pkt_hdr, 128, true);
+#endif
+        return 0;
+    }
+#else
     DEBUG_ASSERT(pkt_hdr->magic == IVSHM_PKT_MAGIC);
     DEBUG_ASSERT(pkt_hdr->len == len);
+#endif
 
     ep = ivshm_pipe_get_endpoint(in, pkt_hdr->id);
 
