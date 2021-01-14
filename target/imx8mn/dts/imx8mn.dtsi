@@ -1,0 +1,566 @@
+#include <soc_common.h>
+#include <fsl_clock.h>
+#include <cm4_clock.h>
+#include <axi_clock.h>
+#include <ahb_clock.h>
+#include <audio_ahb_clock.h>
+#include <qspi_clock.h>
+#include <ecspi_clock.h>
+#include <i2c_clock.h>
+#include <uart_clock.h>
+#include <gpt_clock.h>
+#include <wdog_clock.h>
+#include <pwm_clock.h>
+#include <sai_clock.h>
+#include <spdif_clock.h>
+#include <pdm_clock.h>
+#include <noc_clock.h>
+#include <ccgr_clock.h>
+
+/ {
+    #address-cells = < 0x02 >;
+    #size-cells = < 0x02 >;
+
+    soc {
+        #address-cells = < 0x01 >;
+        #size-cells = < 0x1 >;
+        compatible = "nxp,imx8mm";
+        interrupt-parent = <&gic>;
+
+        cpus {
+            #address-cells = < 0x01 >;
+            #size-cells = < 0x0 >;
+            cpu@0 {
+                compatible = "aarch64, cortex-a53";
+                reg = < 0 >;
+            };
+            cpu@1 {
+                compatible = "aarch64, cortex-a53";
+                reg = < 1 >;
+            };
+            cpu@2 {
+                compatible = "aarch64, cortex-a53";
+                reg = < 2 >;
+            };
+        };
+
+        clocks {
+            compatible = "nxp,clocks";
+            pll-audio1-48k {
+                compatible = "nxp,clocks,audiopll";
+                settings = <393215995U 262 2 3 9437 kANALOG_PllRefOsc24M kCLOCK_AudioPll1Ctrl>;
+            };
+            pll-audio2-44k {
+                compatible = "nxp,clocks,audiopll";
+                settings = <361267196U 361 3 3 17511 kANALOG_PllRefOsc24M kCLOCK_AudioPll2Ctrl>;
+            };
+        };
+
+        gic: gic@38800000 {
+            compatible = "arm,givc3";
+            reg = <0x38800000 0x0>, <0x20000 0x0>, <0x80000 0x0>, <0x0 0x0>;
+            interrupt-controller;
+            #interrupt-cells = <1>;
+        };
+
+        aips1: aips@30000000 {
+            #address-cells = < 0x01 >;
+            #size-cells = < 0x1 >;
+            compatible = "nxp,aips";
+            reg = < 0x30000000 0x400000 >;
+
+            gpt1: gpt@302D0000 {
+                compatible = "gpt";
+                bus-id = <1>;
+                reg = < 0x302D0000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 87 >;
+                interrupt-names = "core";
+
+                clock-names = "core";
+                clock-cfg = <
+                    kCLOCK_Idx_RootGpt1 kCLOCK_GptRootmuxAudioPll1 1 32 kCLOCK_Gpt1 24576000
+                >;
+
+                status = "disabled";
+            };
+
+            gpt2: gpt@302E0000 {
+                compatible = "gpt";
+                bus-id = <2>;
+                reg = < 0x302E0000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 86 >;
+                interrupt-names = "core";
+
+                clock-names = "core";
+                clock-cfg = <
+                    kCLOCK_Idx_RootGpt2 kCLOCK_GptRootmuxAudioPll1 1 32 kCLOCK_Gpt2 24576000
+                >;
+
+                status = "disabled";
+            };
+
+            gpt3: gpt@302F0000 {
+                compatible = "gpt";
+                bus-id = <3>;
+                reg = < 0x302F0000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 85 >;
+                interrupt-names = "core";
+
+                clock-names = "core";
+                clock-cfg = <
+                    kCLOCK_Idx_RootGpt3 kCLOCK_GptRootmuxAudioPll1 1 32 kCLOCK_Gpt3 24576000
+                >;
+
+                status = "disabled";
+            };
+
+            sdma2: sdma@302C0000 {
+                compatible = "sdma";
+                bus-id = <2>;
+                reg = < 0x302C0000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 135 >;
+                interrupt-names = "core";
+
+                clock-names = "audio_ipg", "audio_ahb";
+                clock-cfg = <
+                    kCLOCK_Idx_RootAudioIpg kCLOCK_AudioAhbRootmuxSysPll1 1 1 kCLOCK_Sdma2 200000000
+                    kCLOCK_Idx_RootAudioAhb kCLOCK_AudioAhbRootmuxSysPll1 1 1 kCLOCK_Sdma2 200000000
+                >;
+                /* DMA arguments: hw_request#, dma_transfer_type, priority */
+                #dma-cells = <3>;
+                ratio-1-1;
+
+                status = "disabled";
+            };
+
+            sdma3: sdma@302B0000 {
+                compatible = "sdma";
+                bus-id = <3>;
+                reg = < 0x302B0000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 66 >;
+                interrupt-names = "core";
+
+                clock-names = "audio_ipg", "audio_ahb";
+                clock-cfg = <
+                    kCLOCK_Idx_RootAudioIpg kCLOCK_AudioAhbRootmuxSysPll1 1 1 kCLOCK_Sdma3 200000000
+                    kCLOCK_Idx_RootAudioAhb kCLOCK_AudioAhbRootmuxSysPll1 1 1 kCLOCK_Sdma3 200000000
+                >;
+                /* DMA arguments: hw_request#, dma_transfer_type, priority */
+                #dma-cells = <3>;
+                ratio-1-1;
+
+                status = "disabled";
+            };
+
+            gpr: gpr@30340000 {
+                compatible = "gpr";
+                reg = < 0x30340000 0x10000 >;
+                reg-names = "core";
+
+                status = "disabled";
+            };
+
+            gpio1: gpio@30200000 {
+                compatible = "gpio";
+                bus-id = <1>;
+
+                reg = < 0x30200000 0x10000 >;
+                reg-names = "core";
+
+                gpio-controller;
+
+                #gpio-cells = < 2 >;
+
+                interrupts = < 95 94 93 92 91 90 89 88 96 97 >;
+                interrupt-names = "int0", "int1", "int2",
+                                "int3", "int4", "int5",
+                                "int6", "int7",
+                                "combined_low", "combined_high";
+
+                status = "disabled";
+            };
+
+            gpio2: gpio@30210000 {
+                compatible = "gpio";
+                bus-id = <2>;
+
+                reg = < 0x30210000 0x10000 >;
+                reg-names = "core";
+
+                gpio-controller;
+
+                #gpio-cells = < 2 >;
+                ngpios = <32>;
+
+                interrupts = < 98 99 >;
+                interrupt-names = "combined_low", "combined_high";
+
+                status = "disabled";
+            };
+
+            gpio3: gpio@30220000 {
+                compatible = "gpio";
+                bus-id = <3>;
+
+                reg = < 0x30220000 0x10000 >;
+                reg-names = "core";
+
+                gpio-controller;
+
+                #gpio-cells = < 2 >;
+                ngpios = <32>;
+                interrupts = < 100 101 >;
+                interrupt-names = "combined_low", "combined_high";
+
+                status = "disabled";
+            };
+
+            gpio4: gpio@30230000 {
+                compatible = "gpio";
+                bus-id = <4>;
+
+                reg = < 0x30230000 0x10000 >;
+                reg-names = "core";
+
+                gpio-controller;
+
+                #gpio-cells = < 2 >;
+                ngpios = <32>;
+
+                interrupts = < 102 103 >;
+                interrupt-names = "combined_low", "combined_high";
+
+                status = "disabled";
+            };
+
+            gpio5: gpio@30240000 {
+                compatible = "gpio";
+                bus-id = <5>;
+
+                reg = < 0x30240000 0x10000 >;
+                reg-names = "core";
+
+                gpio-controller;
+                ngpios = <32>;
+
+                #gpio-cells = < 2 >;
+
+                interrupts = < 104 105 >;
+                interrupt-names = "combined_low", "combined_high";
+
+                status = "disabled";
+            };
+
+            spdif1: spdif@30090000 {
+                compatible = "spdif";
+                bus-id = <1>;
+                reg = < 0x30090000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 38 >;
+                interrupt-names = "core";
+
+                clock-names = "bus";
+                clock-cfg = <
+                    kCLOCK_Idx_RootNone 0 kCLOCK_Divider_None kCLOCK_Divider_None kCLOCK_None 200000000
+                >;
+                /* dma channel parameters: HW_request#, peripheral_type, priority */
+                dmas = <&sdma3 SDMA_REQ_SPDIF_RX SDMA_PERIPHERAL_TYPE_SPDIF 7>,
+                    <&sdma3 SDMA_REQ_SPDIF_TX SDMA_PERIPHERAL_TYPE_SPDIF 7>;
+                dma-names = "rx", "tx";
+
+                rx,dma-mode = < SDMA_MODE_ZEROCOPY_CACHED_BUF >;
+
+                status = "disabled";
+            };
+
+            sai2: sai@30020000 {
+                compatible = "sai";
+                bus-id = <2>;
+                reg = < 0x30020000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 128 >;
+                interrupt-names = "core";
+
+                clock-names = "mclk-48k", "mclk-44k", "mclk-32k";
+                clock-cfg = <
+                    kCLOCK_Idx_RootSai2 kCLOCK_SaiRootmuxAudioPll1 1 16 kCLOCK_Sai2 24576000
+                    kCLOCK_Idx_RootSai2 kCLOCK_SaiRootmuxAudioPll2 1 16 kCLOCK_Sai2 22579200
+                    kCLOCK_Idx_RootSai2 kCLOCK_SaiRootmuxAudioPll2 1 16 kCLOCK_Sai2 16384000
+                >;
+
+                dmas = <&sdma3 SDMA_REQ_SAI2_RX SDMA_PERIPHERAL_TYPE_MULTI_FIFO_SAI_RX 2>,
+                    <&sdma3 SDMA_REQ_SAI2_TX SDMA_PERIPHERAL_TYPE_MULTI_FIFO_SAI_TX 2>;
+                dma-names = "rx", "tx";
+
+                rx,dma-mode = < SDMA_MODE_ZEROCOPY_CACHED_BUF >;
+                tx,dma-mode = < SDMA_MODE_ZEROCOPY_CACHED_BUF >;
+
+                status = "disabled";
+            };
+
+            sai3: sai@30030000 {
+                compatible = "sai";
+                bus-id = <3>;
+                reg = < 0x30030000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 82 >;
+                interrupt-names = "core";
+
+                clock-names = "mclk-48k", "mclk-44k", "mclk-32k";
+                clock-cfg = <
+                    kCLOCK_Idx_RootSai3 kCLOCK_SaiRootmuxAudioPll1 1 16 kCLOCK_Sai3 24576000
+                    kCLOCK_Idx_RootSai3 kCLOCK_SaiRootmuxAudioPll2 1 16 kCLOCK_Sai3 22579200
+                    kCLOCK_Idx_RootSai3 kCLOCK_SaiRootmuxAudioPll2 1 16 kCLOCK_Sai3 16384000
+                >;
+
+                dmas = <&sdma3 SDMA_REQ_SAI3_RX SDMA_PERIPHERAL_TYPE_MULTI_FIFO_SAI_RX 2>,
+                       <&sdma3 SDMA_REQ_SAI3_TX SDMA_PERIPHERAL_TYPE_MULTI_FIFO_SAI_TX 2>;
+                dma-names = "rx", "tx";
+
+                rx,dma-mode = < SDMA_MODE_ZEROCOPY_CACHED_BUF >;
+                tx,dma-mode = < SDMA_MODE_ZEROCOPY_CACHED_BUF >;
+
+                status = "disabled";
+            };
+
+            sai5: sai@30050000 {
+                compatible = "sai";
+                bus-id = <5>;
+                reg = < 0x30050000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 122 >;
+                interrupt-names = "core";
+
+                clock-names = "mclk-48k", "mclk-44k", "mclk-32k";
+                clock-cfg = <
+                    kCLOCK_Idx_RootSai5 kCLOCK_SaiRootmuxAudioPll1 1 16 kCLOCK_Sai5 24576000
+                    kCLOCK_Idx_RootSai5 kCLOCK_SaiRootmuxAudioPll2 1 16 kCLOCK_Sai5 22579200
+                    kCLOCK_Idx_RootSai5 kCLOCK_SaiRootmuxAudioPll2 1 16 kCLOCK_Sai5 16384000
+                >;
+
+                dmas = <&sdma3 SDMA_REQ_SAI5_RX SDMA_PERIPHERAL_TYPE_OPT_4_FIFO_SAI_RX 2>,
+                        <&sdma3 SDMA_REQ_SAI5_TX SDMA_PERIPHERAL_TYPE_MULTI_FIFO_SAI_TX 2>;
+                dma-names = "rx", "tx";
+
+                rx,dma-mode = < SDMA_MODE_ZEROCOPY_CACHED_BUF >;
+                tx,dma-mode = < SDMA_MODE_ZEROCOPY_CACHED_BUF >;
+
+                status = "disabled";
+            };
+
+            sai6: sai@30060000 {
+                compatible = "sai";
+                bus-id = <6>;
+                reg = < 0x30060000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 122 >;
+                interrupt-names = "core";
+
+                clock-names = "mclk-48k", "mclk-44k", "mclk-32k";
+                clock-cfg = <
+                    kCLOCK_Idx_RootSai6 kCLOCK_SaiRootmuxAudioPll1 1 16 kCLOCK_Sai6 24576000
+                    kCLOCK_Idx_RootSai6 kCLOCK_SaiRootmuxAudioPll2 1 16 kCLOCK_Sai6 22579200
+                    kCLOCK_Idx_RootSai6 kCLOCK_SaiRootmuxAudioPll2 1 16 kCLOCK_Sai6 16384000
+                >;
+
+                dmas = <&sdma3 SDMA_REQ_SAI6_RX SDMA_PERIPHERAL_TYPE_MULTI_FIFO_SAI_RX 2>,
+                    <&sdma3 SDMA_REQ_SAI6_TX SDMA_PERIPHERAL_TYPE_MULTI_FIFO_SAI_TX 2>;
+                dma-names = "rx", "tx";
+
+                rx,dma-mode = < SDMA_MODE_ZEROCOPY_CACHED_BUF >;
+                tx,dma-mode = < SDMA_MODE_ZEROCOPY_CACHED_BUF >;
+
+                status = "disabled";
+            };
+
+            sai7: sai@300B0000 {
+                compatible = "sai";
+                bus-id = <7>;
+                reg = < 0x300B0000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 139 >;
+                interrupt-names = "core";
+
+                clock-names = "mclk-48k", "mclk-44k", "mclk-32k";
+                clock-cfg = <
+                    kCLOCK_Idx_RootSai7 kCLOCK_SaiRootmuxAudioPll1 1 16 kCLOCK_Sai7 24576000
+                    kCLOCK_Idx_RootSai7 kCLOCK_SaiRootmuxAudioPll2 1 16 kCLOCK_Sai7 22579200
+                    kCLOCK_Idx_RootSai7 kCLOCK_SaiRootmuxAudioPll2 1 16 kCLOCK_Sai7 16384000
+                >;
+
+                dmas = <&sdma3 SDMA_REQ_SAI7_RX SDMA_PERIPHERAL_TYPE_MULTI_FIFO_SAI_RX 2>,
+                    <&sdma3 SDMA_REQ_SAI7_TX SDMA_PERIPHERAL_TYPE_MULTI_FIFO_SAI_TX 2>;
+                dma-names = "rx", "tx";
+
+                rx,dma-mode = < SDMA_MODE_ZEROCOPY_CACHED_BUF >;
+                tx,dma-mode = < SDMA_MODE_ZEROCOPY_CACHED_BUF >;
+
+                status = "disabled";
+            };
+
+            pdm: pdm@30080000 {
+                compatible = "pdm";
+                bus-id = <0>;
+
+                reg = < 0x30080000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 141 142 >;
+                interrupt-names = "core", "error";
+
+                clock-names = "mclk-pdm";
+                clock-cfg = <
+                    kCLOCK_Idx_RootPdm kCLOCK_PdmRootmuxAudioPll2 1 16 kCLOCK_Pdm 24576000
+                >;
+
+                status = "disabled";
+            };
+
+            asrc: asrc@300C0000 {
+                compatible = "asrc";
+                bus-id = <0>;
+
+                reg = < 0x300C0000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 154 >;
+                interrupt-names = "core";
+
+                clock-names = "core";
+                clock-cfg = <
+                    kCLOCK_Idx_RootAudioIpg kCLOCK_AudioAhbRootmuxSysPll1 1 1 kCLOCK_Asrc 200000000
+                >;
+
+                dmas = <&sdma2 SDMA_REQ_ASRC0_RX SDMA_PERIPHERAL_TYPE_MULTI_FIFO_SAI_TX 2>,
+                       <&sdma2 SDMA_REQ_ASRC0_TX SDMA_PERIPHERAL_TYPE_MULTI_FIFO_SAI_RX 2>,
+                       <&sdma2 SDMA_REQ_ASRC1_RX SDMA_PERIPHERAL_TYPE_MULTI_FIFO_SAI_TX 2>,
+                       <&sdma2 SDMA_REQ_ASRC1_TX SDMA_PERIPHERAL_TYPE_MULTI_FIFO_SAI_RX 2>,
+                       <&sdma2 SDMA_REQ_ASRC2_RX SDMA_PERIPHERAL_TYPE_MULTI_FIFO_SAI_TX 2>,
+                       <&sdma2 SDMA_REQ_ASRC2_TX SDMA_PERIPHERAL_TYPE_MULTI_FIFO_SAI_RX 2>,
+                       <&sdma2 SDMA_REQ_ASRC3_RX SDMA_PERIPHERAL_TYPE_MULTI_FIFO_SAI_TX 2>,
+                       <&sdma2 SDMA_REQ_ASRC3_TX SDMA_PERIPHERAL_TYPE_MULTI_FIFO_SAI_RX 2>;
+                dma-names = "rx0", "tx0", "rx1", "tx1", "rx2", "tx2", "rx3", "tx3" ;
+
+                status = "disabled";
+            };
+        };
+
+        aips2: aips@30400000 {
+            #address-cells = < 0x01 >;
+            #size-cells = < 0x1 >;
+            compatible = "nxp,aips";
+            reg = < 0x30400000 0x400000>;
+
+            gpt4: gpt@30700000 {
+                compatible = "gpt";
+                bus-id = <4>;
+                reg = < 0x30700000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 84 >;
+                interrupt-names = "core";
+
+                clock-names = "core";
+                clock-cfg = <
+                    kCLOCK_Idx_RootGpt4 kCLOCK_GptRootmuxAudioPll1 1 32 kCLOCK_Gpt4 24576000
+                >;
+
+                status = "disabled";
+            };
+
+            gpt5: gpt@306F0000 {
+                compatible = "gpt";
+                bus-id = <5>;
+                reg = < 0x306F0000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 83 >;
+                interrupt-names = "core";
+
+                clock-names = "core";
+                clock-cfg = <
+                    kCLOCK_Idx_RootGpt5 kCLOCK_GptRootmuxAudioPll1 1 32 kCLOCK_Gpt5 24576000
+                >;
+
+                status = "disabled";
+            };
+
+            gpt6: gpt@306E0000 {
+                compatible = "gpt";
+                bus-id = <6>;
+                reg = < 0x306E0000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 78 >;
+                interrupt-names = "core";
+
+                clock-names = "core";
+                clock-cfg = <
+                    kCLOCK_Idx_RootGpt6 kCLOCK_GptRootmuxAudioPll1 1 32 kCLOCK_Gpt6 24576000
+                >;
+
+                status = "disabled";
+            };
+
+        };
+
+        aips3: aips@30800000 {
+            #address-cells = < 0x01 >;
+            #size-cells = < 0x1 >;
+            compatible = "nxp,aips";
+            reg = < 0x30800000 0x400000>;
+
+            uart4: uart@30A60000 {
+                compatible = "nxp,uart";
+                bus-id = <0>;
+                reg = < 0x30A60000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 61 >;
+                interrupt-names = "core";
+
+                clock-names = "core";
+                clock-cfg = <
+                    kCLOCK_Idx_RootUart4 kCLOCK_UartRootmuxSysPll1Div10 1 1 kCLOCK_Uart4 80000000
+                >;
+
+                status = "disabled";
+            };
+
+            i2c3: i2c@30A40000 {
+                compatible = "i2c";
+                #address-cells = < 0x01 >;
+                #size-cells = < 0 >;
+                bus-id = <3>;
+                reg = < 0x30A40000 0x10000 >;
+                reg-names = "core";
+
+                interrupts = < 69 >;
+                interrupt-names = "core";
+
+                clock-names = "core";
+                clock-cfg = <
+                    kCLOCK_Idx_RootI2c3 kCLOCK_I2cRootmuxSysPll1Div5 1 4 kCLOCK_I2c3 40000000
+                >;
+
+                status = "disabled";
+            };
+        };
+    };
+};
