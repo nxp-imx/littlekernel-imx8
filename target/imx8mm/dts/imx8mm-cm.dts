@@ -1,0 +1,219 @@
+/dts-v1/;
+
+#include "imx8mm.dtsi"
+#include <iomux.h>
+
+#define GPIO_DESC_REQUESTED         1
+#define GPIO_DESC_OUTPUT            2
+#define GPIO_DESC_INPUT             4
+#define GPIO_DESC_ACTIVE_LOW        8
+#define GPIO_DESC_OUTPUT_ACTIVE     16
+
+/ {
+    compatible = "nxp,imx8mm,rev1";
+    #address-cells = < 0x02 >;
+    #size-cells = < 0x02 >;
+
+    aliases {
+        console = &uart4;
+    };
+
+    meminfo {
+        phys_start = < 0x80000000 >;
+        size = < 0x20000000 >;
+    };
+
+    ivshmem:ivshmem {
+    };
+
+    jailhouse:jailhouse {
+        comm_region = < 0x60000000 0x1000 >;
+        /* Following not used on ABI revision 2 */
+        pci_region = < 0xbb800000 0x100000 >;
+        irq = < 108 >;
+    };
+
+    rpmsg-wd {
+        compatible = "imx_ivshm_binary";
+        size = <0x200>; /* Endpoint buffer 512B */
+        buffer_bytes = <0x200>; /* binary buffer 512B */
+        id = <0x202>;
+        status = "ok";
+    };
+
+    lktraces {
+        compatible = "imx_ivshm_binary";
+        size = <0x200>; /* Endpoint buffer 512B */
+        buffer_bytes = <0x200>; /* binary buffer size 512B */
+        id = <0x200>;
+        status = "disabled";
+    };
+};
+
+&gpr {
+    status = "ok";
+
+    init = < 2 0x0 6 0x0 7 0x0 8 0x0f0f0000 >;
+};
+
+&sdma2 {
+    status = "ok";
+    #include "sdma-fw.dtsi"
+};
+
+&sdma3 {
+    status = "ok";
+    #include "sdma-fw.dtsi"
+};
+
+&sai1 {
+    status = "ok";
+
+    pinctrl-names = "default";
+    pinctrl-0 = <
+        IOMUXC_SAI1_MCLK_SAI1_MCLK      0   0x8A
+        IOMUXC_SAI1_TXC_SAI1_TX_BCLK    0   0x8A
+        IOMUXC_SAI1_TXD0_SAI1_TX_DATA0  0   0x8A
+        IOMUXC_SAI1_TXFS_SAI1_TX_SYNC   0   0x8A
+        IOMUXC_SAI1_RXD7_SAI1_TX_SYNC   0   0x8A
+        IOMUXC_SAI1_TXD1_SAI1_TX_DATA1  0   0x8A
+        IOMUXC_SAI1_TXD2_SAI1_TX_DATA2  0   0x8A
+        IOMUXC_SAI1_TXD3_SAI1_TX_DATA3  0   0x8A
+        IOMUXC_SAI1_TXD4_SAI1_TX_DATA4  0   0x8A
+        IOMUXC_SAI1_TXD5_SAI1_TX_DATA5  0   0x8A
+        IOMUXC_SAI1_TXD6_SAI1_TX_DATA6  0   0x8A
+        IOMUXC_SAI1_TXD7_SAI1_TX_DATA7  0   0x8A
+        IOMUXC_SAI1_RXC_SAI1_RX_BCLK    0   0x8A
+        IOMUXC_SAI1_RXD0_SAI1_RX_DATA0  0   0x8A
+        IOMUXC_SAI1_RXD1_SAI1_RX_DATA1  0   0x8A
+        IOMUXC_SAI1_RXD2_SAI1_RX_DATA2  0   0x8A
+        IOMUXC_SAI1_RXD3_SAI1_RX_DATA3  0   0x8A
+        IOMUXC_SAI1_RXD4_SAI1_RX_DATA4  0   0x8A
+        IOMUXC_SAI1_RXD5_SAI1_RX_SYNC   0   0x8A
+        IOMUXC_GPIO1_IO01_CCM_EXT_CLK2  0   0x8A
+    >;
+};
+
+&sai2 {
+    status = "ok";
+
+    pinctrl-names = "default";
+    pinctrl-0 = <
+        IOMUXC_SAI2_MCLK_SAI2_MCLK      0   0x8A
+        IOMUXC_SAI2_RXC_SAI2_RX_BCLK    0   0x8A
+        IOMUXC_SAI2_RXD0_SAI2_RX_DATA0  0   0x8A
+        IOMUXC_SAI2_RXFS_SAI2_RX_DATA1  0   0x8A
+        IOMUXC_SAI2_RXFS_SAI2_RX_SYNC   0   0x8A
+    >;
+};
+
+&sai3 {
+    status = "ok";
+
+    pinctrl-names = "default";
+    pinctrl-0 = <
+        IOMUXC_SAI3_MCLK_SAI3_MCLK      0   0x8A
+        IOMUXC_SAI3_RXC_SAI3_RX_BCLK    0   0x8A
+        IOMUXC_SAI3_RXD_SAI3_RX_DATA0   0   0x8A
+        IOMUXC_SAI3_RXFS_SAI3_RX_DATA1  0   0x8A
+        IOMUXC_SAI3_RXFS_SAI3_RX_SYNC   0   0x8A
+    >;
+};
+
+&sai5 {
+    status = "ok";
+
+    pinctrl-names = "default";
+    pinctrl-0 = <
+        IOMUXC_SAI5_MCLK_SAI5_MCLK      0   0x8A
+        IOMUXC_SAI5_RXC_SAI5_RX_BCLK    0   0x8A
+        IOMUXC_SAI5_RXD0_SAI5_RX_DATA0  0   0x8A
+        IOMUXC_SAI5_RXD1_SAI5_RX_DATA1  0   0x8A
+        IOMUXC_SAI5_RXD2_SAI5_RX_DATA2  0   0x8A
+        IOMUXC_SAI5_RXD3_SAI5_RX_DATA3  0   0x8A
+        IOMUXC_SAI5_RXFS_SAI5_RX_SYNC   0   0x8A
+    >;
+};
+
+&sai6 {
+    is-dummy;
+    status = "ok";
+    rx,mclk-select = < 2 >;
+    tx,mclk-select = < 2 >;
+};
+
+&spdif1 {
+    status = "ok";
+    dma-period-length = <2048>;
+    dma-nr-period = <4>;
+
+    pinctrl-names = "default";
+    pinctrl-0 = <
+        IOMUXC_SPDIF_RX_SPDIF1_IN           0   0x196
+        IOMUXC_SPDIF_TX_SPDIF1_OUT          0   0
+        IOMUXC_SPDIF_EXT_CLK_SPDIF1_EXT_CLK 0   0
+    >;
+};
+
+&gpt1 {
+    status = "ok";
+
+    pinctrl-names = "default";
+    pinctrl-0 = <
+        IOMUXC_SAI3_RXFS_GPT1_CAPTURE1          0   0x100
+    >;
+};
+
+&uart4 {
+    status = "ok";
+
+    pinctrl-names = "default";
+    pinctrl-0 = <
+        IOMUXC_UART4_TXD_UART4_TX 0 0x16
+        IOMUXC_UART4_RXD_UART4_RX 0 0x16
+    >;
+};
+
+&pdm {
+    status = "ok";
+    pinctrl-names = "default";
+    pinctrl-0 = <
+        IOMUXC_SAI5_RXC_PDM_CLK             0   0x8A
+        IOMUXC_SAI5_RXFS_SAI5_RX_SYNC       0   0x8A
+        IOMUXC_SAI5_RXD0_PDM_BIT_STREAM0    0   0x8A
+        IOMUXC_SAI5_RXD1_PDM_BIT_STREAM1    0   0x8A
+        IOMUXC_SAI5_RXD2_PDM_BIT_STREAM2    0   0x8A
+        IOMUXC_SAI5_RXD3_PDM_BIT_STREAM3    0   0x8A
+    >;
+};
+
+&i2c3 {
+    status = "ok";
+    pinctrl-names = "default";
+    pinctrl-0 = <
+        IOMUXC_I2C3_SCL_I2C3_SCL 1 0x86
+        IOMUXC_I2C3_SDA_I2C3_SDA 1 0x86
+    >;
+
+
+    pca6416: pca6416@20 {
+        compatible = "pca6416";
+        gpio-controller;
+        #gpio-cells = < 2 >;
+
+        reg = < 0x20 >;
+        reg-names = "core";
+
+        interrupts = <96>;
+        interrupt-names = "core";
+
+        pinctrl-names = "default";
+        pinctrl-0 = <
+            IOMUXC_GPIO1_IO12_GPIO1_IO12 1 0x140
+        >;
+
+        status = "ok";
+        /* TODO: Add GPIO definition */
+    };
+
+};
