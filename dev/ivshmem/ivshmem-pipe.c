@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 NXP
+ * Copyright 2018-2021 NXP
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files
@@ -851,7 +851,9 @@ int ivshm_pipe_init(struct ivshm_info *info)
     u32 ivpos;
 
 #ifndef LK
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,8,0)
     struct sched_param param = {.sched_priority = MAX_RT_PRIO - 1,};
+#endif
 #endif
 
     /* Not using revision of cb index array saves some cycles on registors
@@ -907,7 +909,11 @@ int ivshm_pipe_init(struct ivshm_info *info)
         return -EINVAL;
     }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,8,0)
+    sched_set_fifo(info->thread);
+#else
     sched_setscheduler(info->thread, SCHED_FIFO, &param);
+#endif
 #endif
 
     /* Common to all OSes */

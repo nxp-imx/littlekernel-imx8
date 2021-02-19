@@ -1,5 +1,5 @@
 /*
- * Copyright 2018-2020 NXP
+ * Copyright 2018-2021 NXP
  *
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files
@@ -470,7 +470,9 @@ struct ivshm_endpoint *ivshm_endpoint_create_w_private(
 {
     struct ivshm_endpoint *ep;
 #ifndef LK
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,8,0)
     struct sched_param param;
+#endif
 #else
     unsigned stack_size;
 #endif
@@ -541,14 +543,20 @@ struct ivshm_endpoint *ivshm_endpoint_create_w_private(
 
     thread_resume(ep->thread);
 #else
+#if LINUX_VERSION_CODE < KERNEL_VERSION(5,8,0)
     param.sched_priority = IVSHM_EP_GET_PRIO(ep->id);
+#endif
     ep->thread = kthread_run(ivshm_endpoint_thread, ep, ep->name);
 
     if (IS_ERR(ep->thread)) {
         return ERR_PTR(-EINVAL);
     }
 
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(5,8,0)
+    sched_set_fifo(ep->thread);
+#else
     sched_setscheduler(ep->thread, IVSHM_EP_GET_SCHED(ep->id), &param);
+#endif
 #endif
 
     /* Add endpoint to ivshmem */
