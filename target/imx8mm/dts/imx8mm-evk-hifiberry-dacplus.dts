@@ -1,0 +1,50 @@
+#include "imx8mm-evk.dts"
+
+&i2c3 {
+    status = "ok";
+    baud-rate = <400000>;
+
+    pcm512x: pcm512x@4d {
+        compatible = "dac_pcm512x";
+
+        reg = < 0x4d >;
+        reg-names = "core";
+        bus-id-i2c = < 3 >;
+        bus-id = < 51 >;
+        gpio-led = < 4 >;
+        gpio-osc44 = < 6 >;
+        gpio-osc48 = < 3 >;
+
+        status = "ok";
+    };
+
+    pcm186x: pcm186x@4a {
+        compatible = "adc_pcm186x";
+
+        reg = < 0x4a >;
+        reg-names = "core";
+        bus-id-i2c = < 3 >;
+        bus-id = < 18 >;
+        gpio-led = < 2 >;
+
+        status = "ok";
+    };
+};
+
+&sai5 {
+    status = "okay";
+
+    pinctrl-0 = <
+        IOMUXC_SAI5_RXD0_SAI5_RX_DATA0  0   0x8A
+        IOMUXC_SAI5_RXD1_SAI5_TX_SYNC   0   0x8A
+        IOMUXC_SAI5_RXD2_SAI5_TX_BCLK   0   0x8A
+        IOMUXC_SAI5_RXD3_SAI5_TX_DATA0  0   0x8A
+    >;
+
+    /* RX synchronised to TX */
+    rx,sync-mode = < 1 >;
+
+    /* Hifiberry card is master */
+    rx,slave_mode;
+    tx,slave_mode;
+};
