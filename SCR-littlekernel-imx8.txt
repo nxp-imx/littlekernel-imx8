@@ -1,0 +1,12 @@
+NXP Software Content Register
+
+--------------------------------------------
+Package:                     littlekernel-imx8
+Outgoing License:            MIT
+License File:                COPYING-MIT
+Package Category:            BSP
+Type of Content:             Source code
+Description and comments:    Little Kernel i.MX8M base port
+Release Location:            https://github.com/NXPmicro/littlekernel-imx8
+Origin:                      Little Kernel i.MX8 (MIT) - https://github.com/NXPmicro/littlekernel-imx8
+--------------------------------------------
