@@ -21,5 +21,12 @@ jailhouse cell create /usr/share/jailhouse/cells/${LK_CELL}
 echo 'Loading jailhouse lk cell'
 jailhouse cell load lk ${DTB} -a ${LK_START_ADDRESS} ${LK_BIN} -a ${LK_ENTRY_ADDRESS}
 
+echo 'Unbinding uio0'
+PCINAME=$(basename $(ls -d /sys/bus/pci/drivers/uio_ivshmem/*:*:*.*))
+echo $PCINAME > /sys/bus/pci/drivers/uio_ivshmem/unbind
+modprobe -r ivshmem
+
 echo 'Starting lk cell'
 jailhouse cell start lk
+modprobe ivshmem
+modprobe rpmsg_console
