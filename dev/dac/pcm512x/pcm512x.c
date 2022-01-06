@@ -1,6 +1,6 @@
 /*
  * The Clear BSD License
- * Copyright 2021 NXP
+ * Copyright 2021-2022 NXP
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
@@ -386,6 +386,8 @@ static int dac_pcm512x_get_dac_rate(int sample_rate)
 
     switch (sample_rate) {
         case 44100:
+        case 88200:
+        case 176400:
             dr = 5644800;
             break;
         case 48000:
@@ -410,6 +412,8 @@ static uint8_t dac_pcm512x_get_dac_div(int sample_rate)
 
     switch (sample_rate) {
         case 44100:
+        case 88200:
+        case 176400:
             u = CLK_44100;
             break;
         case 48000:
@@ -438,6 +442,8 @@ static int dac_pcm512x_get_idac(int sample_rate, uint8_t dsp_div)
 
     switch (sample_rate) {
         case 44100:
+        case 88200:
+        case 176400:
             u = CLK_44100;
             break;
         case 48000:
@@ -465,6 +471,8 @@ static uint8_t dac_pcm512x_get_bclk_div(int sample_rate, uint8_t lrclk_div)
 
     switch (sample_rate) {
         case 44100:
+        case 88200:
+        case 176400:
             u = CLK_44100;
             break;
         case 48000:
@@ -494,9 +502,11 @@ static uint8_t dac_pcm512x_get_fssp(int sample_rate)
         case 48000:
             fssp = PCM512x_FSSP_48KHZ;
             break;
+        case 88200:
         case 96000:
             fssp = PCM512x_FSSP_96KHZ;
             break;
+        case 176400:
         case 192000:
             fssp = PCM512x_FSSP_192KHZ;
             break;
@@ -524,7 +534,8 @@ status_t dac_pcm512x_set_format(struct device *dev, dac_audio_hw_params_t *hw_pa
     printlk(LK_VERBOSE, "%s\n", __FUNCTION__);
 
     sample_rate = hw_params->rate;
-    if ((sample_rate != 44100) && (sample_rate != 48000) &&
+    if ((sample_rate != 44100) && (sample_rate != 88200) &&
+            (sample_rate != 176400) && (sample_rate != 48000) &&
             (sample_rate != 96000) && (sample_rate != 192000) &&
             (sample_rate != 384000)) {
         printlk(LK_ERR, "%s: sample_rate %d not supported!\n", __FUNCTION__, sample_rate);
